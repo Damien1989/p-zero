@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ProgramRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,24 +10,33 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProgramController extends AbstractController
 {
     /**
-     * @Route("/program/", name="app_program")
+     * @Route("/program/", name="program_index")
      */
 
-    public function index(): Response
+    public function index(ProgramRepository $programRepository): Response
     {
         return $this->render('program/index.html.twig', [
-            'programme' => 'Deezer',
+            'programs' => 'programs',
         ]);
     }
 
     /**
-     * @Route("/program/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="program_id")
+     * @Route("/program/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="program_show")
      */
 
-    public function show (int $id): Response
+    public function show (int $id, ProgramRepository $programRepository): Response
     {
+        $program = $programRepository->findOneBy(['id' => $id]);
+
+
+        if (!$program) {
+            throw $this->createNotFoundException(
+                'No program with id : ' . $id . ' found in program\'s table.'
+            );
+        }
+
         return $this->render('program/show.html.twig', [
-            'id' => $id,
+            'program' => $program,
         ]);
     }
 }
