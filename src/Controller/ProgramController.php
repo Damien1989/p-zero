@@ -2,58 +2,40 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
-use App\Repository\ProgramRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Form\CategoryType;
-use App\Form\ProgramType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
 
+
+/**
+ * @Route("/program",name="program_")
+ */
 class ProgramController extends AbstractController
+
 {
     /**
-     * @Route("/program", name="program_index")
-     */
-
-    public function index(ProgramRepository $programRepository): Response
-    {
-        return $this->render('program/index.html.twig', [
-            'programs' => 'programs',
-        ]);
-    }
-
-    /**
-     * The controller for the category add form
+     * Show all rows from Program's entity
      *
-     * @Route("/new", name="new")
+     * @Route("/",name="index")
      */
-
-    public function new(Request $request) : Response
+    public function index(): Response
     {
-        $program = new Program();
-        $form = $this->createForm(ProgramType::class, $program);
-        $form->handleRequest($request);
+        $programs = $this->getDoctrine()
+            ->getRepository(Program::class)
+            ->findAll();
 
-        if ($form->isSubmitted()){
-            $entityManager = $this->$doctrine->getManager();
-            $entityManager->persist($program);
-            $entityManager->flush();
-            return $this->redirectToRoute('program_index');
-        }
-
-        return $this->renderForm('program/new.html.twig', [
-            "form" => $form,
-        ]);
-
+        return $this->render(
+            'program/index.html.twig',
+            ['programs' => $programs]
+        );
     }
 
+
     /**
-     ** @Route("/{program}/", name="show", methods="GET", requirements={"id"="\d{1,}"})
+     ** @Route("/{program}/", name="show")
      */
     public function show(Program $program): Response
     {
@@ -89,7 +71,7 @@ class ProgramController extends AbstractController
     }
 
     /**
-     * @Route("/{program}/seasons/{season}/episode/{episode}", name="episode_show")
+     * @Route("/{programId}/seasons/{seasonId}/episode/{episodeId}", name="episode_show")
      */
     public function showEpisode(Program $program, Season $season, Episode $episode)
     {
